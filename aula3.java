@@ -14,17 +14,30 @@ class Produtor extends Thread {
 	Produtor(int novoId) {
 		this.id = novoId;
 	}
+
 	public void run() {
 		for(int i = 0; i < 100; i ++ ) {			
 			synchronized( Main.lock )
 			{	
-				if(Main.produtos < 100)
+				if(Main.produtos < 100) {
 					Main.produtos = Main.produtos + 1;
-				System.out.println("\nProdutor " + id + "; estoque = " + Main.produtos);
+				System.out.println("\nProdutor " + id + "; estoque = " + Main.produtos);}
+		
+				//Condicao adicionada
+				
+				if(Main.produtos == 0) {
+					try {
+						Main.lock.wait();
+					} catch (InterruptedException e) {
+						System.out.println("O Produto zerado");
+						e.printStackTrace();
+					}
+				}
 			}
 		}
 	}
 }
+
 class Consumidor extends Thread {
 	int id = 0;
 	Consumidor(int novoId) {
@@ -37,6 +50,18 @@ class Consumidor extends Thread {
 				System.out.println("\nConsumidor " + id + "; estoque = " + Main.produtos);
 				if(Main.produtos > 0)
 					Main.produtos = Main.produtos - 1;
+				
+				//Condicao adicionada
+				
+				
+				if(Main.produtos == 0) {
+					try {
+						Main.lock.wait();
+					} catch (InterruptedException e) {
+						System.out.println("O produto foi zerado, não pode haver nenhum consumidor");
+						e.printStackTrace();
+					}
+				}
 			}
 		}
 	}
